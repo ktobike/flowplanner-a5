@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FlowPlanner — Import</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="phone">
+
+    <!-- HEADER -->
+    <header class="header">
+      <span class="material-symbols-rounded">description</span>
+      <div>
+        <div class="app">FlowPlanner</div>
+        <div class="sub">Turn PDFs into a balanced weekly plan</div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <section class="main">
+
+      <!-- Upload card -->
+      <div class="card">
+        <div class="dropzone">
+          <span class="material-symbols-rounded">upload</span>
+          <div>
+            <div style="font-weight:600">Drop syllabi / take photos</div>
+            <div class="small">PDF, PNG, or a quick phone pic</div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="row" style="margin-top:12px">
+          <a class="btn"><span class="material-symbols-rounded">photo_camera</span>Take photo</a>
+          <a class="btn secondary"><span class="material-symbols-rounded">upload_file</span>Upload PDF</a>
+        </div>
+      </div>
+
+      <!-- Detected Courses -->
+      <div class="card">
+        <div class="kv"><span>Detected</span><span> 3 courses</span></div>
+        <div class="chips" style="margin-top:10px">
+          <div class="chip">CIS 1210</div>
+          <div class="chip">STAT 4300</div>
+          <div class="chip">HIST 1200</div>
+        </div>
+        <hr class="sep"/>
+        <div style="display:flex;gap:12px;align-items:center;margin-top:10px">
+          <a class="badge" href="workload.html" style="text-decoration:none;color:inherit">
+            <span class="material-symbols-rounded">schedule</span> Set workload target
+          </a>
+          <a class="btn" href="timeline.html"><span class="material-symbols-rounded">arrow_forward</span>Continue</a>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <span class="small">Step 1 of 4 · Import</span>
+      <span class="small">Next: Timeline</span>
+    </footer>
+  </main>
+</body>
+</html>
