@@ -49,7 +49,15 @@
   <script>
     const r = document.getElementById('range');
     const t = document.getElementById('targetVal');
+    // load saved target
+    const saved = localStorage.getItem('fp_target');
+    if (saved) { r.value = saved; t.textContent = saved; }
     r.addEventListener('input', () => { t.textContent = r.value; });
+    // save on leave
+    window.addEventListener('beforeunload', () => {
+      localStorage.setItem('fp_target', r.value);
+    });
   </script>
+
 </body>
 </html>

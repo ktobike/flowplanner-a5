@@ -93,5 +93,17 @@
       <span class="small">Next: Resolve</span>
     </footer>
   </main>
+  <script>
+  // read target and update badge text + overload classes
+  const badge = document.querySelector('.badge');
+  const target = parseFloat(localStorage.getItem('fp_target') || '10');
+  if (badge) badge.innerHTML = `<span class="material-symbols-rounded">schedule</span> Target: ${target} hrs/wk`;
+  document.querySelectorAll('.week').forEach(w => {
+    const bar = w.querySelector('.bar');
+    if (!bar) return;
+    const h = parseFloat(getComputedStyle(bar).getPropertyValue('--h')) || 0;
+    w.classList.toggle('overload', h > target);
+  });
+</script>
 </body>
 </html>

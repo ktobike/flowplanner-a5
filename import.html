@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Syllabus → Planner — Export</title>
+  <title>FlowPlanner — Export</title>
 
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +30,8 @@
     <section class="main">
       <div class="card">
         <div class="row">
-          <a class="btn"><span class="material-symbols-rounded">event_available</span>Add to Calendar</a>
+          <!-- Button now has id for script -->
+          <a class="btn" id="icsBtn"><span class="material-symbols-rounded">event_available</span>Add to Calendar</a>
           <a class="btn secondary"><span class="material-symbols-rounded">share</span>Share with partner</a>
         </div>
 
@@ -53,5 +54,59 @@
       <span class="small">Done</span>
     </footer>
   </main>
+
+  <!-- ✅ SCRIPT: ICS Export Implementation -->
+  <script>
+    // Utility to format datetime in ICS spec
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function dt(d){
+      const x = new Date(d);
+      const y = x.getFullYear(), m = pad(x.getMonth()+1), da = pad(x.getDate());
+      return `${y}${m}${da}T090000Z`; // 9am UTC placeholder
+    }
+
+    // Demo events from your preview
+    const events = [
+      { summary: "STAT PSet start", date: "2025-11-18" },
+      { summary: "CIS PSet continue", date: "2025-11-19" },
+      { summary: "HIST Draft due", date: "2025-11-21" }
+    ];
+
+    // Build ICS calendar text
+    function buildICS(name, items){
+      let s = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//FlowPlanner//EN\nCALSCALE:GREGORIAN\n";
+      s += `X-WR-CALNAME:${name}\n`;
+      items.forEach(it=>{
+        const uid = Math.random().toString(36).slice(2);
+        s += "BEGIN:VEVENT\n";
+        s += `UID:${uid}@flowplanner\n`;
+        s += `DTSTAMP:${dt(it.date)}\n`;
+        s += `DTSTART:${dt(it.date)}\n`;
+        s += `SUMMARY:${it.summary}\n`;
+        s += "DURATION:PT60M\n";
+        s += "END:VEVENT\n";
+      });
+      s += "END:VCALENDAR\n";
+      return s;
+    }
+
+    // Trigger browser download
+    function download(filename, text){
+      const blob = new Blob([text], {type:"text/calendar;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Bind button
+    document.getElementById("icsBtn").onclick = ()=>{
+      const ics = buildICS("FlowPlanner Plan", events);
+      download("flowplanner.ics", ics);
+      alert("Your FlowPlanner events have been exported as a calendar file (.ics).");
+    };
+  </script>
 </body>
 </html>
