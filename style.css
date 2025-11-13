@@ -171,7 +171,7 @@ body{
 /* Slider (Workload) */
 .rangeWrap{ margin:18px 0 8px 0; }
 .rangeWrap input[type="range"]{
-  -webkit-appearance:none; width:100%; height:6px; border-radius:999px;
+  -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:999px;
   background:linear-gradient(90deg,#5b8cff,#9ab7ff); outline:none;
 }
 .rangeWrap input[type="range"]::-webkit-slider-thumb{
@@ -179,3 +179,15 @@ body{
   background:#fff; border:3px solid #5b8cff; box-shadow:0 6px 16px rgba(91,140,255,.35);
 }
 .ticks{ display:flex; justify-content:space-between; margin-top:6px; color:var(--muted); font-size:12px; }
+
+/* =========================
+   UTILITY CLASSES
+========================= */
+.kv{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.chips{ display:flex; gap:8px; flex-wrap:wrap; }
+.chip{
+  padding:6px 12px; border-radius:999px;
+  background:rgba(91,140,255,.15); border:1px solid rgba(91,140,255,.35);
+  color:#9ab7ff; font-size:13px; font-weight:500;
+}
+.sep{ border:none; border-top:1px solid rgba(255,255,255,.08); margin:12px 0; }
