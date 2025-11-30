@@ -13,7 +13,7 @@
 
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Minimal clean dropzone (folder upload) */
+    /* Minimal clean dropzone */
     .dropzone {
       border: 2px dashed rgba(255,255,255,.15);
       border-radius: 14px;
@@ -34,6 +34,26 @@
       margin-bottom: 6px;
       color: var(--muted);
     }
+
+    /* Fake course cards */
+    .courseCard {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      animation: fadeIn .4s ease;
+    }
+    .courseTitle { font-weight: 600; color: var(--text); }
+    .courseSub { font-size: 13px; color: var(--muted); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 
@@ -53,7 +73,7 @@
     <section class="main">
       <div class="card" id="importCard">
 
-        <!-- INITIAL DROP ZONE -->
+        <!-- STEP 1: Upload -->
         <div id="importStepStart">
           <div class="badge">
             <span class="material-symbols-rounded" style="font-size:16px;">upload</span>
@@ -61,29 +81,28 @@
           </div>
 
           <h2 style="margin:12px 0 4px 0;">Upload your syllabi folder</h2>
-          <p class="sub">Choose the folder that contains your course syllabi (PDFs).</p>
+          <p class="sub">Choose the folder that contains all your course syllabi (PDFs).</p>
 
           <div id="dropzone" class="dropzone">
             <span class="material-symbols-rounded">upload</span>
             Upload your syllabi folder<br>
-            <small class="sub">Full syllabi folder</small>
+            <small class="sub">PDFs only</small>
           </div>
 
-          <!-- The important folder input -->
           <input type="file" id="folderInput" webkitdirectory directory multiple hidden>
         </div>
 
-        <!-- PROCESSING STEP -->
+        <!-- STEP 2: Detection -->
         <div id="importStepProcessing" style="display:none;">
           <div class="badge">
             <span class="material-symbols-rounded" style="font-size:16px;">sync</span>
-            Detecting templates...
+            Detecting syllabi...
           </div>
           <h2 style="margin:12px 0 4px 0;">Analyzing syllabi</h2>
-          <p class="sub">We’re extracting structure and workload patterns from your files.</p>
+          <p class="sub">We’re identifying workload patterns and course structures.</p>
 
           <ul id="statusList" style="list-style:none; margin:18px 0; padding:0;">
-            <li>🔍 Detecting course templates...</li>
+            <li>🔍 Detecting course syllabi...</li>
             <li>🧠 Reading assignment structures...</li>
             <li>📅 Extracting workload hours...</li>
             <li>✅ Organizing weekly breakdowns...</li>
@@ -94,16 +113,18 @@
           </div>
         </div>
 
-        <!-- DONE STEP -->
-        <div id="importStepDone" style="display:none;">
+        <!-- STEP 3: Fake Courses Preview -->
+        <div id="importStepPreview" style="display:none;">
           <div class="badge">
-            <span class="material-symbols-rounded" style="font-size:16px;">check_circle</span>
-            Import complete
+            <span class="material-symbols-rounded" style="font-size:16px;">menu_book</span>
+            Detected syllabi
           </div>
-          <h2 style="margin:12px 0 4px 0;">Syllabi processed</h2>
-          <p class="sub" id="summaryText">FlowPlanner has detected your syllabi templates.</p>
+          <h2 style="margin:12px 0 4px 0;">Syllabi identified</h2>
+          <p class="sub">We found these course structures in your folder.</p>
 
-          <div class="row" style="margin-top:14px;">
+          <div id="courseList"></div>
+
+          <div class="row" style="margin-top:18px;">
             <a href="workload.html" class="btn">
               <span class="material-symbols-rounded">arrow_forward</span>
               Continue to workload setup
@@ -129,12 +150,12 @@ const dropzone = document.getElementById('dropzone');
 const folderInput = document.getElementById('folderInput');
 const stepStart = document.getElementById('importStepStart');
 const stepProcessing = document.getElementById('importStepProcessing');
-const stepDone = document.getElementById('importStepDone');
+const stepPreview = document.getElementById('importStepPreview');
 const progressBar = document.getElementById('progressBar');
-const summaryText = document.getElementById('summaryText');
+const courseList = document.getElementById('courseList');
 
 /* --------------------------------------------
-   CLICK OR DROP HANDLERS
+   CLICK / DRAG / DROP HANDLERS
 -------------------------------------------- */
 dropzone.addEventListener('click', () => folderInput.click());
 folderInput.addEventListener('change', e => startImport(e.target.files));
@@ -156,7 +177,7 @@ dropzone.addEventListener('drop', e => {
 });
 
 /* --------------------------------------------
-   MOCK IMPORT FLOW (Template detection)
+   MOCK IMPORT FLOW
 -------------------------------------------- */
 function startImport(files) {
   if (!files || !files.length) return;
@@ -186,16 +207,38 @@ function simulateProcessing(fileCount) {
       i++;
     } else {
       clearInterval(interval);
-      setTimeout(() => {
-        stepProcessing.style.display = 'none';
-        stepDone.style.display = 'block';
-        summaryText.textContent =
-          fileCount > 1
-            ? `FlowPlanner processed ${fileCount} syllabi successfully.`
-            : `FlowPlanner processed 1 syllabus successfully.`;
-      }, 600);
+      setTimeout(() => showFakeCourses(fileCount), 800);
     }
   }, 900);
+}
+
+/* --------------------------------------------
+   GENERATE FAKE COURSES
+-------------------------------------------- */
+function showFakeCourses(fileCount) {
+  stepProcessing.style.display = 'none';
+  stepPreview.style.display = 'block';
+
+  const fakeCourses = [
+    { name: "Intro to Psychology", hrs: 4.5, info: "Detected 12 assignments · 3 exams · 15 lectures" },
+    { name: "Data Structures", hrs: 6.2, info: "Detected 9 assignments · 2 projects · 10 labs" },
+    { name: "Organic Chemistry I", hrs: 7.1, info: "Detected 8 problem sets · 2 midterms · 1 final" },
+    { name: "Microeconomics", hrs: 5.8, info: "Detected 10 assignments · 3 quizzes · 12 lectures" },
+    { name: "World Literature", hrs: 3.9, info: "Detected 5 essays · 1 presentation · 14 readings" }
+  ];
+
+  // Shuffle & trim based on how many files were uploaded
+  const shown = fakeCourses.slice(0, Math.min(fileCount, 5));
+
+  shown.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "courseCard";
+    div.innerHTML = `
+      <div class="courseTitle">${c.name} <span class="sub">· ≈ ${c.hrs}h/week</span></div>
+      <div class="courseSub">${c.info}</div>
+    `;
+    courseList.appendChild(div);
+  });
 }
 </script>
 
