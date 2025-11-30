@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FlowPlanner · Import syllabi</title>
+
+  <!-- Fonts and icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="phone">
+
+    <!-- HEADER -->
+    <header class="header">
+      <span class="material-symbols-rounded" onclick="history.back()" style="cursor:pointer;">arrow_back</span>
+      <div>
+        <div class="app">FlowPlanner</div>
+        <div class="sub">Import syllabi</div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <section class="main">
+      <div class="card">
+        <div class="badge"> Import</div>
+        <h2 style="margin:10px 0 4px 0;">Drop syllabi or upload PDFs</h2>
+        <p class="sub">FlowPlanner will scan them and build a term plan from realistic workload estimates.</p>
+
+        <!-- Dropzone + file input -->
+        <div class="dropzone" id="dropzone">
+          <div style="font-size:32px; margin-bottom:8px;">
+            <span class="material-symbols-rounded">picture_as_pdf</span>
+          </div>
+          <p style="margin:0 0 8px 0;">Drag syllabus PDFs here</p>
+          <p class="small" style="margin:0 0 14px 0;">Or choose files from your computer</p>
+          <button class="btn" type="button" id="chooseFilesBtn">
+            <span class="material-symbols-rounded">upload_file</span>
+            Choose syllabus PDFs
+          </button>
+          <input id="fileInput" type="file" accept=".pdf" multiple hidden>
+        </div>
+
+        <!-- File list -->
+        <div id="fileSummary" class="plan" style="display:none; margin-top:14px;">
+          <h4>Selected files</h4>
+          <ul id="fileList"></ul>
+        </div>
+
+        <!-- Detected courses summary -->
+        <div id="courseSummary" class="plan" style="display:none; margin-top:10px;">
+          <h4>Detected courses</h4>
+          <ul id="courseList"></ul>
+          <p class="small" style="margin-top:6px;">
+            FlowPlanner will use these courses to build your workload timeline and suggested start dates.
+          </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="row" style="margin-top:16px;">
+          <a href="timeline.html" class="btn" id="continueBtn" style="pointer-events:none; opacity:0.45;">
+            <span class="material-symbols-rounded">timeline</span>
+            Continue to timeline
+          </a>
+          <a href="index.html" class="btn secondary">
+            <span class="material-symbols-rounded">home</span>
+            Back to home
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <span class="small">Step 1 of 4 · Import</span>
+      <span class="small">Next: Timeline</span>
+    </footer>
+  </main>
+
+  <script>
+    // Grab elements
+    const fileInput     = document.getElementById('fileInput');
+    const chooseBtn     = document.getElementById('chooseFilesBtn');
+    const dropzone      = document.getElementById('dropzone');
+    const fileSummary   = document.getElementById('fileSummary');
+    const fileListEl    = document.getElementById('fileList');
+    const courseSummary = document.getElementById('courseSummary');
+    const courseListEl  = document.getElementById('courseList');
+    const continueBtn   = document.getElementById('continueBtn');
+
+    // Open file picker
+    chooseBtn.addEventListener('click', () => fileInput.click());
+
+    // Handle picked files
+    fileInput.addEventListener('change', () => {
+      if (!fileInput.files || fileInput.files.length === 0) return;
+      handleFiles(Array.from(fileInput.files));
+    });
+
+    // Drag and drop
+    ['dragenter', 'dragover'].forEach(evt => {
+      dropzone.addEventListener(evt, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.style.borderColor = 'rgba(91,140,255,.9)';
+        dropzone.style.background = 'rgba(91,140,255,.08)';
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(evt => {
+      dropzone.addEventListener(evt, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.style.borderColor = 'rgba(255,255,255,.15)';
+        dropzone.style.background = 'transparent';
+      });
+    });
+
+    dropzone.addEventListener('drop', e => {
+      const dtFiles = e.dataTransfer.files;
+      if (!dtFiles || dtFiles.length === 0) return;
+      handleFiles(Array.from(dtFiles));
+    });
+
+    // Core handler: update UI + fake "extraction"
+    function handleFiles(files) {
+      // Show file names
+      fileListEl.innerHTML = '';
+      files.forEach((f, idx) => {
+        const li = document.createElement('li');
+        li.textContent = f.name || 'Syllabus ' + (idx + 1);
+        fileListEl.appendChild(li);
+      });
+      fileSummary.style.display = 'block';
+
+      // Build fake course objects (hardcoded but realistic)
+      const courses = buildFakeCourses(files.length);
+
+      // Render detected courses
+      courseListEl.innerHTML = '';
+      courses.forEach(course => {
+        const li = document.createElement('li');
+        li.innerHTML =
+          '<span class="due-title">' + course.code + ' · ' + course.name + '</span>' +
+          '<br><span class="small">Weekly load: about ' + course.hoursPerWeek +
+          'h · Assignments: ' + course.assignments.join(', ') + '</span>';
+        courseListEl.appendChild(li);
+      });
+      courseSummary.style.display = 'block';
+
+      // Store in localStorage so later screens can use them
+      try {
+        localStorage.setItem('flowplannerCourses', JSON.stringify(courses));
+      } catch (e) {
+        console.warn('Could not save courses to localStorage', e);
+      }
+
+      // Enable continue button
+      continueBtn.style.pointerEvents = 'auto';
+      continueBtn.style.opacity = '1';
+    }
+
+    // Fake "extraction": map files to realistic courses for the demo
+    function buildFakeCourses(count) {
+      const templates = [
+        {
+          code: 'CIS 2620',
+          name: 'Automata and Formal Languages',
+          hoursPerWeek: 9,
+          assignments: ['Weekly psets', 'Midterm', 'Final']
+        },
+        {
+          code: 'STAT 4300',
+          name: 'Probability',
+          hoursPerWeek: 8,
+          assignments: ['Problem sets', 'Quizzes', 'Final exam']
+        },
+        {
+          code: 'HIST 1200',
+          name: 'Intro to History',
+          hoursPerWeek: 6,
+          assignments: ['Workbook', 'Oral practice', 'Short essays']
+        },
+        {
+          code: 'CIS 5450',
+          name: 'Big Data Analytics',
+          hoursPerWeek: 10,
+          assignments: ['Projects', 'Labs', 'Exam']
+        }
+      ];
+
+      const courses = [];
+      for (let i = 0; i < count; i++) {
+        const template = templates[i] || {
+          code: 'ELECTIVE ' + (i + 1),
+          name: 'Seminar',
+          hoursPerWeek: 5,
+          assignments: ['Readings', 'Short response', 'Final paper']
+        };
+        courses.push(template);
+      }
+      return courses;
+    }
+  </script>
+</body>
+</html>

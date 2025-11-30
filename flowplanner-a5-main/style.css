@@ -88,43 +88,71 @@ body{
 /* =========================
    CHART with Y-AXIS (single source of truth)
 ========================= */
+/* --- Chart with y-axis (final sizing) --- */
 .chart{
   display:grid;
-  grid-template-columns:44px 1fr;       /* y-axis | bars */
-  gap:12px; margin-top:10px;
+  grid-template-columns: 40px 1fr;   /* y-axis + bars */
+  gap:8px;
+  margin-top:8px;
 }
+
 .yaxis{
-  display:flex; flex-direction:column; justify-content:space-between;
-  height:180px; padding:2px 0;
-  color:var(--muted); font-size:12px; text-align:right;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  height:120px;                      /* smaller chart */
+  padding:2px 0;
+  color:var(--muted);
+  font-size:11px;
+  text-align:right;
 }
+
 .barsWrap{
-  height:180px; padding:12px 10px 8px;
+  height:120px;                      /* match y-axis */
+  padding:8px 8px 4px;
   background:rgba(255,255,255,.02);
   border:1px solid rgba(255,255,255,.08);
-  border-radius:12px; display:grid; align-items:end;
-  overflow:hidden;                         /* contain glow */
+  border-radius:12px;
+  overflow:hidden;
+  display:grid;
+  align-items:end;
 }
+
 .weeks{
-  display:grid; grid-template-columns:repeat(12,1fr);
-  gap:8px; align-items:end; height:100%;
+  display:grid;
+  grid-template-columns:repeat(12, 1fr);
+  gap:6px;
+  align-items:end;
+  height:100%;
 }
+
 .week{ text-align:center; }
 .week a{ display:block; text-decoration:none; color:inherit; }
+
 .bar{
-  /* convert “hours” to height; clamp to 16h so it never overflows */
-  height:calc(min(var(--h,6),16) * 10px);
-  width:100%; background:var(--primary);
+  /* clamp to 16h max and keep inside box */
+  height:calc(min(var(--h, 6), 16) * 6px);
+  width:100%;
+  background:var(--primary);
   border-radius:8px 8px 0 0;
-  box-shadow:inset 0 -8px 0 rgba(255,255,255,.08);
+  box-shadow:inset 0 -4px 0 rgba(255,255,255,.08);
   transition:transform .12s ease;
 }
+
 .week.overload .bar{
   background:#ff8c3a;
-  box-shadow:0 0 0 2px rgba(255,177,0,.35),0 10px 22px rgba(255,140,0,.35);
+  box-shadow:0 0 0 2px rgba(255,177,0,.35),
+             0 6px 14px rgba(255,140,0,.35);
 }
+
 .week:hover .bar{ transform:translateY(-2px); }
-.label{ font-size:11px; color:var(--muted); margin-top:6px; }
+
+.label{
+  font-size:10px;
+  color:var(--muted);
+  margin-top:3px;
+}
+
 
 /* =========================
    LISTS / WEEK DETAILS / FORMS
