@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FlowPlanner · Timeline</title>
 
-  <!-- Fonts & icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,10 +12,10 @@
 
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <main class="phone">
 
-    <!-- HEADER -->
     <header class="header">
       <span class="material-symbols-rounded" onclick="history.back()" style="cursor:pointer;">arrow_back</span>
       <div>
@@ -25,66 +24,53 @@
       </div>
     </header>
 
-    <!-- MAIN -->
     <section class="main">
       <div class="card">
+
         <div class="badge">
-          <span class="material-symbols-rounded" style="font-size:16px;">bolt</span>
-          Week 7 overload · needs rebalance
+          <span class="material-symbols-rounded" style="font-size:16px;">schedule</span>
+          Weekly workload overview
         </div>
 
-        <h2 style="margin:10px 0 4px 0;">12-week load overview</h2>
-        <p class="sub">Each bar shows the total planned hours for that week across all imported courses.</p>
+        <h2 style="margin:12px 0 4px 0;">12-week timeline</h2>
+        <p class="sub">Based on your uploaded syllabi and selected target.</p>
 
-        <!-- Chart with y axis + bars -->
         <div class="chart">
-          <!-- y axis labels -->
           <div class="yaxis">
-            <span>16h</span>
-            <span>12h</span>
-            <span>8h</span>
-            <span>4h</span>
-            <span>0h</span>
+            <span>70h</span>
+            <span>60h</span>
+            <span>50h</span>
+            <span>40h</span>
+            <span>30h</span>
           </div>
 
-          <!-- bars wrapper -->
           <div class="barsWrap">
-            <div class="weeks" id="weeks">
-              <!-- JS will populate .week elements here -->
-            </div>
+            <div class="weeks" id="weeks"></div>
           </div>
         </div>
 
-        <div class="rangeWrap">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span class="small">Target: <span id="targetHoursLabel">10</span> hrs/week</span>
-            <span class="small">Tap Week 7 for details</span>
-          </div>
+        <div style="display:flex; justify-content:space-between; margin-top:8px;">
+          <span class="small">Target: <span id="targetLabel">55</span> hrs/week</span>
+          <span class="small">Tap Week 7 for details</span>
         </div>
 
-        <!-- Simple legend -->
         <div class="row" style="margin-top:8px;">
           <span class="small">
             <span class="dot" style="display:inline-block; margin-right:4px;"></span>Within target
           </span>
           <span class="small">
-            <span style="
-              display:inline-block;
-              width:10px; height:10px; border-radius:50%;
-              background:#ff8c3a; box-shadow:0 0 0 3px rgba(255,177,0,.35);
-              margin-right:4px;
-            "></span>
+            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ff8c3a;
+              box-shadow:0 0 0 3px rgba(255,177,0,.35);margin-right:4px;"></span>
             Over target
           </span>
         </div>
 
-        <!-- Suggested next actions -->
         <div class="plan" style="margin-top:14px;">
           <h4>Next steps</h4>
           <ul>
-            <li>Review Week 7 to see which courses are causing the spike.</li>
-            <li>Adjust your weekly workload target on the Workload screen.</li>
-            <li>Move low-stakes work out of heavy weeks into lighter ones.</li>
+            <li>Review Week 7 to see which courses cause the spike.</li>
+            <li>Adjust your target workload on the Workload screen.</li>
+            <li>Rebalance Week 7 using smart suggestions.</li>
           </ul>
         </div>
 
@@ -95,104 +81,89 @@
           </a>
           <a href="workload.html" class="btn secondary">
             <span class="material-symbols-rounded">tune</span>
-            Adjust workload target
+            Adjust target
           </a>
         </div>
+
       </div>
     </section>
 
-    <!-- FOOTER -->
     <footer class="footer">
       <span class="small">Step 2 of 4 · Timeline</span>
       <span class="small">Next: Week details</span>
     </footer>
+
   </main>
 
-  <script>
-    const TARGET_HOURS = 10; // your default target per week
+<script>
+function loadCourses() {
+  try {
+    const raw = localStorage.getItem("flowplannerCourses");
+    return JSON.parse(raw) || [];
+  } catch {
+    return [];
+  }
+}
 
-    // Try to load courses from localStorage (set on import.html)
-    function loadCourses() {
-      try {
-        const raw = localStorage.getItem('flowplannerCourses');
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed) || parsed.length === 0) return null;
-        return parsed;
-      } catch (e) {
-        console.warn('Could not read courses from localStorage', e);
-        return null;
-      }
-    }
+function loadTarget() {
+  const saved = localStorage.getItem("fp_target");
+  return saved ? parseFloat(saved) : 55;
+}
 
-    // Fallback sample courses if user jumps straight here
-    function sampleCourses() {
-      return [
-        { code: 'CIS 2620',  name: 'Automata and Formal Languages', hoursPerWeek: 9 },
-        { code: 'STAT 4300', name: 'Probability',                  hoursPerWeek: 8 },
-        { code: 'CIS 5450',  name: 'Big Data Analytics',           hoursPerWeek: 10 }
-      ];
-    }
+function generateWeeklyLoads(courses, spikeMultiplier = 1.3) {
+  const base = courses.reduce((sum, c) => sum + (c.hoursPerWeek || 50), 0);
+  const factors = [
+    0.92, 0.97, 1.00, 1.05, 0.98, 0.93,
+    spikeMultiplier, 1.02, 0.95, 0.90, 1.00, 0.97
+  ];
+  return factors.map(f => parseFloat((base * f).toFixed(1)));
+}
 
-    // Build an array of 12 weeks of total hours
-    function buildWeeklyLoad(courses) {
-      const weeks = new Array(12).fill(0);
+function renderTimeline(weeks, target) {
+  const container = document.getElementById("weeks");
+  container.innerHTML = "";
 
-      // Simple model: sum hoursPerWeek across courses for each week
-      const base = courses.reduce((sum, c) => sum + (c.hoursPerWeek || 0), 0);
-      for (let i = 0; i < 12; i++) {
-        weeks[i] = base;
-      }
+  weeks.forEach((hours, idx) => {
+    const weekNum = idx + 1;
+    const overload = hours > target;
 
-      // Make Week 7 "overloaded" to match the narrative
-      // (Week 7 is index 6 because arrays are 0-based)
-      weeks[6] = weeks[6] + 6; // add a spike
+    const weekDiv = document.createElement("div");
+    weekDiv.className = "week" + (overload ? " overload" : "");
 
-      return weeks;
-    }
+    let inner = "";
+    inner += `<a href="${weekNum === 7 ? "week7.html" : "#"}" onclick="${weekNum !== 7 ? "event.preventDefault();" : ""}">`;
 
-    // Render the bars
-    function renderTimeline(weeks) {
-      const container = document.getElementById('weeks');
-      container.innerHTML = '';
+    // Map 30–70 h → 0–100 % height
+    // Convert 30–70h directly into pixel height for a 220px chart
+    // Map 30–70h → 0–200px (same as CSS heights)
+    const minH = 30;
+    const maxH = 70;
+    const chartHeight = 200; // MUST match .yaxis/.barsWrap height
 
-      const maxHours = 16; // to match y axis labels
-      weeks.forEach((hours, idx) => {
-        const weekNum = idx + 1;
-        const overload = hours > TARGET_HOURS;
+    let normalized = (hours - minH) / (maxH - minH);
+    normalized = Math.max(0, Math.min(1, normalized));
+    const pxHeight = normalized * chartHeight;
 
-        // create wrapper
-        const weekDiv = document.createElement('div');
-        weekDiv.className = 'week' + (overload ? ' overload' : '');
+    inner += `<div class="bar" style="height:${pxHeight}px"></div>`;
+    inner += `<div class="label">W${weekNum}<br><span class="small">${hours}h</span></div>`;
+    inner += "</a>";
 
-        // make Week 7 clickable, others just display bars
-        let inner = '';
-        if (weekNum === 7) {
-          inner += '<a href="week7.html">';
-        } else {
-          inner += '<a href="week7.html" onclick="event.preventDefault();">';
-        }
 
-        inner += '<div class="bar" style="--h:' + Math.min(hours, maxHours) + ';"></div>';
-        inner += '<div class="label">W' + weekNum + '<br><span class="small">' + hours.toFixed(1) + 'h</span></div>';
-        inner += '</a>';
 
-        weekDiv.innerHTML = inner;
-        container.appendChild(weekDiv);
-      });
+    weekDiv.innerHTML = inner;
+    container.appendChild(weekDiv);
+  });
 
-      // Update target label
-      document.getElementById('targetHoursLabel').textContent = TARGET_HOURS;
-    }
+  document.getElementById("targetLabel").textContent = target;
+}
 
-    (function init() {
-      let courses = loadCourses();
-      if (!courses) {
-        courses = sampleCourses();
-      }
-      const weekly = buildWeeklyLoad(courses);
-      renderTimeline(weekly);
-    })();
-  </script>
+(function init() {
+  const courses = loadCourses();
+  const target = loadTarget();
+  const weeks = generateWeeklyLoads(courses, 1.30);
+  renderTimeline(weeks, target);
+})();
+</script>
+
 </body>
 </html>

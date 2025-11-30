@@ -5,20 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FlowPlanner · Import syllabi</title>
 
-  <!-- Fonts and icons -->
+  <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Minimal clean dropzone (folder upload) */
+    .dropzone {
+      border: 2px dashed rgba(255,255,255,.15);
+      border-radius: 14px;
+      text-align: center;
+      padding: 40px 20px;
+      color: #b7c3ea;
+      background: rgba(255,255,255,0.02);
+      cursor: pointer;
+      transition: all .25s ease;
+    }
+    .dropzone:hover {
+      border-color: rgba(91,140,255,.6);
+      background: rgba(91,140,255,.04);
+    }
+    .dropzone span {
+      display: block;
+      font-size: 32px;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+  </style>
 </head>
+
 <body>
   <main class="phone">
 
     <!-- HEADER -->
     <header class="header">
-      <span class="material-symbols-rounded" onclick="history.back()" style="cursor:pointer;">arrow_back</span>
+      <span class="material-symbols-rounded" style="cursor:pointer;" onclick="history.back()">arrow_back</span>
       <div>
         <div class="app">FlowPlanner</div>
         <div class="sub">Import syllabi</div>
@@ -27,185 +51,153 @@
 
     <!-- MAIN -->
     <section class="main">
-      <div class="card">
-        <div class="badge"> Import</div>
-        <h2 style="margin:10px 0 4px 0;">Drop syllabi or upload PDFs</h2>
-        <p class="sub">FlowPlanner will scan them and build a term plan from realistic workload estimates.</p>
+      <div class="card" id="importCard">
 
-        <!-- Dropzone + file input -->
-        <div class="dropzone" id="dropzone">
-          <div style="font-size:32px; margin-bottom:8px;">
-            <span class="material-symbols-rounded">picture_as_pdf</span>
+        <!-- INITIAL DROP ZONE -->
+        <div id="importStepStart">
+          <div class="badge">
+            <span class="material-symbols-rounded" style="font-size:16px;">upload</span>
+            Step 1 — Import syllabi
           </div>
-          <p style="margin:0 0 8px 0;">Drag syllabus PDFs here</p>
-          <p class="small" style="margin:0 0 14px 0;">Or choose files from your computer</p>
-          <button class="btn" type="button" id="chooseFilesBtn">
-            <span class="material-symbols-rounded">upload_file</span>
-            Choose syllabus PDFs
-          </button>
-          <input id="fileInput" type="file" accept=".pdf" multiple hidden>
+
+          <h2 style="margin:12px 0 4px 0;">Upload your syllabi folder</h2>
+          <p class="sub">Choose the folder that contains your course syllabi (PDFs).</p>
+
+          <div id="dropzone" class="dropzone">
+            <span class="material-symbols-rounded">upload</span>
+            Upload your syllabi folder<br>
+            <small class="sub">Full syllabi folder</small>
+          </div>
+
+          <!-- The important folder input -->
+          <input type="file" id="folderInput" webkitdirectory directory multiple hidden>
         </div>
 
-        <!-- File list -->
-        <div id="fileSummary" class="plan" style="display:none; margin-top:14px;">
-          <h4>Selected files</h4>
-          <ul id="fileList"></ul>
+        <!-- PROCESSING STEP -->
+        <div id="importStepProcessing" style="display:none;">
+          <div class="badge">
+            <span class="material-symbols-rounded" style="font-size:16px;">sync</span>
+            Detecting templates...
+          </div>
+          <h2 style="margin:12px 0 4px 0;">Analyzing syllabi</h2>
+          <p class="sub">We’re extracting structure and workload patterns from your files.</p>
+
+          <ul id="statusList" style="list-style:none; margin:18px 0; padding:0;">
+            <li>🔍 Detecting course templates...</li>
+            <li>🧠 Reading assignment structures...</li>
+            <li>📅 Extracting workload hours...</li>
+            <li>✅ Organizing weekly breakdowns...</li>
+          </ul>
+
+          <div style="height:4px; background:rgba(255,255,255,.08); border-radius:99px; overflow:hidden;">
+            <div id="progressBar" style="width:0%; height:100%; background:var(--primary); transition:width .4s;"></div>
+          </div>
         </div>
 
-        <!-- Detected courses summary -->
-        <div id="courseSummary" class="plan" style="display:none; margin-top:10px;">
-          <h4>Detected courses</h4>
-          <ul id="courseList"></ul>
-          <p class="small" style="margin-top:6px;">
-            FlowPlanner will use these courses to build your workload timeline and suggested start dates.
-          </p>
+        <!-- DONE STEP -->
+        <div id="importStepDone" style="display:none;">
+          <div class="badge">
+            <span class="material-symbols-rounded" style="font-size:16px;">check_circle</span>
+            Import complete
+          </div>
+          <h2 style="margin:12px 0 4px 0;">Syllabi processed</h2>
+          <p class="sub" id="summaryText">FlowPlanner has detected your syllabi templates.</p>
+
+          <div class="row" style="margin-top:14px;">
+            <a href="workload.html" class="btn">
+              <span class="material-symbols-rounded">arrow_forward</span>
+              Continue to workload setup
+            </a>
+          </div>
         </div>
 
-        <!-- Actions -->
-        <div class="row" style="margin-top:16px;">
-          <a href="timeline.html" class="btn" id="continueBtn" style="pointer-events:none; opacity:0.45;">
-            <span class="material-symbols-rounded">timeline</span>
-            Continue to timeline
-          </a>
-          <a href="index.html" class="btn secondary">
-            <span class="material-symbols-rounded">home</span>
-            Back to home
-          </a>
-        </div>
       </div>
     </section>
 
     <!-- FOOTER -->
     <footer class="footer">
-      <span class="small">Step 1 of 4 · Import</span>
-      <span class="small">Next: Timeline</span>
+      <span class="small">Step 1 of 4 · Import syllabi</span>
+      <span class="small">Next: Workload setup</span>
     </footer>
   </main>
 
-  <script>
-    // Grab elements
-    const fileInput     = document.getElementById('fileInput');
-    const chooseBtn     = document.getElementById('chooseFilesBtn');
-    const dropzone      = document.getElementById('dropzone');
-    const fileSummary   = document.getElementById('fileSummary');
-    const fileListEl    = document.getElementById('fileList');
-    const courseSummary = document.getElementById('courseSummary');
-    const courseListEl  = document.getElementById('courseList');
-    const continueBtn   = document.getElementById('continueBtn');
+<script>
+/* --------------------------------------------
+   ELEMENTS
+-------------------------------------------- */
+const dropzone = document.getElementById('dropzone');
+const folderInput = document.getElementById('folderInput');
+const stepStart = document.getElementById('importStepStart');
+const stepProcessing = document.getElementById('importStepProcessing');
+const stepDone = document.getElementById('importStepDone');
+const progressBar = document.getElementById('progressBar');
+const summaryText = document.getElementById('summaryText');
 
-    // Open file picker
-    chooseBtn.addEventListener('click', () => fileInput.click());
+/* --------------------------------------------
+   CLICK OR DROP HANDLERS
+-------------------------------------------- */
+dropzone.addEventListener('click', () => folderInput.click());
+folderInput.addEventListener('change', e => startImport(e.target.files));
 
-    // Handle picked files
-    fileInput.addEventListener('change', () => {
-      if (!fileInput.files || fileInput.files.length === 0) return;
-      handleFiles(Array.from(fileInput.files));
-    });
+dropzone.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropzone.style.borderColor = 'rgba(91,140,255,.6)';
+  dropzone.style.background = 'rgba(91,140,255,.04)';
+});
+dropzone.addEventListener('dragleave', () => {
+  dropzone.style.borderColor = 'rgba(255,255,255,.15)';
+  dropzone.style.background = 'rgba(255,255,255,.02)';
+});
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.style.borderColor = 'rgba(255,255,255,.15)';
+  dropzone.style.background = 'rgba(255,255,255,.02)';
+  startImport(e.dataTransfer.files);
+});
 
-    // Drag and drop
-    ['dragenter', 'dragover'].forEach(evt => {
-      dropzone.addEventListener(evt, e => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.style.borderColor = 'rgba(91,140,255,.9)';
-        dropzone.style.background = 'rgba(91,140,255,.08)';
-      });
-    });
+/* --------------------------------------------
+   MOCK IMPORT FLOW (Template detection)
+-------------------------------------------- */
+function startImport(files) {
+  if (!files || !files.length) return;
+  stepStart.style.display = 'none';
+  stepProcessing.style.display = 'block';
 
-    ['dragleave', 'drop'].forEach(evt => {
-      dropzone.addEventListener(evt, e => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.style.borderColor = 'rgba(255,255,255,.15)';
-        dropzone.style.background = 'transparent';
-      });
-    });
+  const syllabusData = Array.from(files).map(f => ({
+    name: f.name,
+    size: f.size,
+    lastModified: f.lastModified
+  }));
+  localStorage.setItem('flowplannerCourses', JSON.stringify(syllabusData));
 
-    dropzone.addEventListener('drop', e => {
-      const dtFiles = e.dataTransfer.files;
-      if (!dtFiles || dtFiles.length === 0) return;
-      handleFiles(Array.from(dtFiles));
-    });
+  simulateProcessing(files.length);
+}
 
-    // Core handler: update UI + fake "extraction"
-    function handleFiles(files) {
-      // Show file names
-      fileListEl.innerHTML = '';
-      files.forEach((f, idx) => {
-        const li = document.createElement('li');
-        li.textContent = f.name || 'Syllabus ' + (idx + 1);
-        fileListEl.appendChild(li);
-      });
-      fileSummary.style.display = 'block';
+function simulateProcessing(fileCount) {
+  const steps = document.querySelectorAll("#statusList li");
+  let i = 0;
+  let progress = 0;
 
-      // Build fake course objects (hardcoded but realistic)
-      const courses = buildFakeCourses(files.length);
-
-      // Render detected courses
-      courseListEl.innerHTML = '';
-      courses.forEach(course => {
-        const li = document.createElement('li');
-        li.innerHTML =
-          '<span class="due-title">' + course.code + ' · ' + course.name + '</span>' +
-          '<br><span class="small">Weekly load: about ' + course.hoursPerWeek +
-          'h · Assignments: ' + course.assignments.join(', ') + '</span>';
-        courseListEl.appendChild(li);
-      });
-      courseSummary.style.display = 'block';
-
-      // Store in localStorage so later screens can use them
-      try {
-        localStorage.setItem('flowplannerCourses', JSON.stringify(courses));
-      } catch (e) {
-        console.warn('Could not save courses to localStorage', e);
-      }
-
-      // Enable continue button
-      continueBtn.style.pointerEvents = 'auto';
-      continueBtn.style.opacity = '1';
+  const interval = setInterval(() => {
+    if (i < steps.length) {
+      steps[i].style.color = "#9ab7ff";
+      progress += 25;
+      progressBar.style.width = progress + "%";
+      i++;
+    } else {
+      clearInterval(interval);
+      setTimeout(() => {
+        stepProcessing.style.display = 'none';
+        stepDone.style.display = 'block';
+        summaryText.textContent =
+          fileCount > 1
+            ? `FlowPlanner processed ${fileCount} syllabi successfully.`
+            : `FlowPlanner processed 1 syllabus successfully.`;
+      }, 600);
     }
+  }, 900);
+}
+</script>
 
-    // Fake "extraction": map files to realistic courses for the demo
-    function buildFakeCourses(count) {
-      const templates = [
-        {
-          code: 'CIS 2620',
-          name: 'Automata and Formal Languages',
-          hoursPerWeek: 9,
-          assignments: ['Weekly psets', 'Midterm', 'Final']
-        },
-        {
-          code: 'STAT 4300',
-          name: 'Probability',
-          hoursPerWeek: 8,
-          assignments: ['Problem sets', 'Quizzes', 'Final exam']
-        },
-        {
-          code: 'HIST 1200',
-          name: 'Intro to History',
-          hoursPerWeek: 6,
-          assignments: ['Workbook', 'Oral practice', 'Short essays']
-        },
-        {
-          code: 'CIS 5450',
-          name: 'Big Data Analytics',
-          hoursPerWeek: 10,
-          assignments: ['Projects', 'Labs', 'Exam']
-        }
-      ];
-
-      const courses = [];
-      for (let i = 0; i < count; i++) {
-        const template = templates[i] || {
-          code: 'ELECTIVE ' + (i + 1),
-          name: 'Seminar',
-          hoursPerWeek: 5,
-          assignments: ['Readings', 'Short response', 'Final paper']
-        };
-        courses.push(template);
-      }
-      return courses;
-    }
-  </script>
 </body>
 </html>
