@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FlowPlanner · Week 7 details</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0" rel="stylesheet">
+
+  <!-- Base app styles -->
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    .week-meta {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .pill {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--muted);
+    }
+    .pill strong { color:var(--text); }
+
+    .pill-danger {
+      background:rgba(255,140,0,.12);
+      border-color:rgba(255,177,0,.45);
+      color:#ffd27a;
+    }
+
+    .section-title {
+      font-size:14px;
+      font-weight:600;
+      margin:0 0 6px 0;
+    }
+
+    .due-list,
+    .start-list {
+      margin:0;
+      padding:0;
+      list-style:none;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .due-item,
+    .start-item {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.02);
+      font-size:13px;
+    }
+
+    .due-main,
+    .start-main {
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+
+    .course-tag {
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    .hours-tag {
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.14);
+      white-space:nowrap;
+    }
+
+    .hours-tag.hot {
+      background:rgba(255,140,0,.16);
+      border-color:rgba(255,177,0,.45);
+      color:#ffd27a;
+    }
+
+    .day-chip {
+      font-size:12px;
+      padding:3px 7px;
+      border-radius:999px;
+      background:rgba(91,140,255,.16);
+      border:1px solid rgba(91,140,255,.45);
+      color:#dbe4ff;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+
+    .summary-box {
+      margin-top:12px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.02);
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .summary-box strong { color:var(--text); }
+
+    .btn-wide {
+      width:100%;
+      justify-content:center;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="phone">
+
+    <!-- HEADER -->
+    <header class="header">
+      <span class="material-symbols-rounded" onclick="history.back()" style="cursor:pointer;">arrow_back</span>
+      <div>
+        <div class="app">FlowPlanner</div>
+        <div class="sub">Week 7 details</div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <section class="main">
+      <div class="card">
+
+        <div class="badge">
+          <span class="material-symbols-rounded" style="font-size:16px;">bolt</span>
+          Week 7 overload · suggested fixes
+        </div>
+
+        <h2 style="margin:12px 0 4px 0;">What is making Week 7 heavy?</h2>
+        <p class="sub">
+          FlowPlanner combines assignments from all imported courses and compares them to your weekly target.
+        </p>
+
+        <div class="week-meta">
+          <div class="pill">
+            <span class="material-symbols-rounded" style="font-size:16px;">calendar_view_week</span>
+            Week 7 total: <strong>45h</strong>
+          </div>
+          <div class="pill">
+            <span class="material-symbols-rounded" style="font-size:16px;">flag</span>
+            Target: <strong>30h / week</strong>
+          </div>
+          <div class="pill pill-danger">
+            <span class="material-symbols-rounded" style="font-size:16px;">warning</span>
+            <strong>+15h over target</strong>
+          </div>
+        </div>
+
+        <!-- Due this week -->
+        <div class="plan" style="margin-top:16px;">
+          <p class="section-title">Due this week</p>
+          <ul class="due-list">
+            <li class="due-item">
+              <div class="due-main">
+                <span><strong>Data Structures · Problem Set 3</strong></span>
+                <span class="course-tag">Written problems and a coding part · due Thu 11:59p</span>
+              </div>
+              <span class="hours-tag hot">~10h</span>
+            </li>
+            <li class="due-item">
+              <div class="due-main">
+                <span><strong>Microeconomics · Project checkpoint</strong></span>
+                <span class="course-tag">Implement core data structures · due Fri 5p</span>
+              </div>
+              <span class="hours-tag">~8h</span>
+            </li>
+            <li class="due-item">
+              <div class="due-main">
+                <span><strong>World Literature · Draft essay</strong></span>
+                <span class="course-tag">4–5 page draft · due Sun 11:59p</span>
+              </div>
+              <span class="hours-tag">~7h</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Suggested starts -->
+        <div class="plan" style="margin-top:14px;">
+          <p class="section-title">Suggested starts to rebalance Week 7</p>
+          <ul class="start-list">
+            <li class="start-item">
+              <div class="start-main">
+                <span>
+                  <span class="day-chip">
+                    <span class="material-symbols-rounded" style="font-size:14px;">event</span>
+                    Tue 7–9p
+                  </span>
+                </span>
+                <span><strong>Start Data Structures PSet</strong></span>
+                <span class="course-tag">
+                  Moves 4h of work into Week 6 while the load there is lighter.
+                </span>
+              </div>
+              <span class="hours-tag hot">-4h from W7</span>
+            </li>
+
+            <li class="start-item">
+              <div class="start-main">
+                <span>
+                  <span class="day-chip">
+                    <span class="material-symbols-rounded" style="font-size:14px;">event</span>
+                    Wed 7–10p
+                  </span>
+                </span>
+                <span><strong>Continue Micro Economics project</strong></span>
+                <span class="course-tag">
+                  Spreads coding work over two evenings instead of one crunch session.
+                </span>
+              </div>
+              <span class="hours-tag hot">-3h from W7</span>
+            </li>
+
+            <li class="start-item">
+              <div class="start-main">
+                <span>
+                  <span class="day-chip">
+                    <span class="material-symbols-rounded" style="font-size:14px;">event</span>
+                    Fri 3–5p
+                  </span>
+                </span>
+                <span><strong>Draft World Literature intro + outline</strong></span>
+                <span class="course-tag">
+                  Leaves only light revision for Sunday instead of a full draft.
+                </span>
+              </div>
+              <span class="hours-tag hot">-2h from W7</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="summary-box">
+          If you accept all suggestions, Week 7 drops from <strong>45h</strong> to about
+          <strong>33h</strong>, which is much closer to your <strong>30h</strong> target.
+          FlowPlanner will update the 12-week timeline and mark the new plan as applied.
+        </div>
+
+        <!-- Actions -->
+        <div style="margin-top:18px; display:flex; flex-direction:column; gap:10px;">
+          <button class="btn btn-wide" id="applyPlanBtn">
+            <span class="material-symbols-rounded">check_circle</span>
+            Apply plan &amp; rebalance
+          </button>
+
+          <a href="timeline.html" class="btn secondary btn-wide">
+            <span class="material-symbols-rounded">close</span>
+            Cancel, keep current plan
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span class="small">Step 3 of 4 · Week details</span>
+      <span class="small">Next: Rebalanced timeline</span>
+    </footer>
+
+  </main>
+
+  <script>
+    // When the user applies the plan, set a flag then go to the updated timeline.
+    document.getElementById("applyPlanBtn").addEventListener("click", function () {
+      try {
+        localStorage.setItem("fp_plan_applied", "week7");
+      } catch (e) {
+        // ignore storage errors, this is just for the prototype
+      }
+      window.location.href = "updatedtimeline.html";
+    });
+  </script>
+</body>
+</html>
