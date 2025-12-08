@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FlowPlanner · Updated timeline</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    .chart {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 12px;
+      margin-top: 12px;
+      width: 100%;
+    }
+    .yaxis {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 200px;
+      padding: 2px 0;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+    }
+    .barsWrap {
+      height: 200px;
+      padding: 12px 10px 8px;
+      background: rgba(255,255,255,.02);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      overflow: hidden;
+      display: grid;
+      align-items: end;
+    }
+    .weeks {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 8px;
+      align-items: end;
+      height: 100%;
+    }
+    .week { text-align: center; }
+    .week a { display:block; text-decoration:none; color:inherit; }
+
+    .bar {
+      width: 100%;
+      background: var(--primary);
+      border-radius: 8px 8px 0 0;
+      box-shadow: inset 0 -8px 0 rgba(255,255,255,.08);
+      transition: transform .12s ease;
+    }
+    .week:hover .bar { transform: translateY(-2px); }
+
+    .label {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.2;
+    }
+    .label-hours {
+      font-size: 10px;
+      display:block;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+
+    <!-- HEADER -->
+    <header class="header">
+      <span class="material-symbols-rounded" onclick="history.back()" style="cursor:pointer">arrow_back</span>
+      <div>
+        <div class="app">FlowPlanner</div>
+        <div class="sub">Updated timeline</div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <section class="main">
+      <div class="card">
+
+        <div class="kv">
+          <span>Weeks 1-12</span>
+          <!-- success badge on resolved state -->
+          <span class="badge" id="resolvedBadge"
+            style="background:rgba(0,200,120,.16);
+                   border-color:rgba(0,200,120,.35);
+                   color:#8ff2c4">
+            <span class="material-symbols-rounded">check_circle</span>
+            <span id="badgeText">Week 7 back on target</span>
+          </span>
+        </div>
+
+        <h2 style="margin:12px 0 4px 0;">Balanced 12 week load</h2>
+        <p class="sub">
+          After applying your changes, Week 7 is now within your weekly target.
+        </p>
+
+        <!-- Chart -->
+        <div class="chart">
+          <div class="yaxis" id="yaxis"></div>
+          <div class="barsWrap">
+            <div class="weeks" id="weeks"></div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:8px;">
+          <span class="small">
+            Target: <span id="targetLabel">30</span> hrs/week
+          </span>
+          <span class="small" id="summaryHint">All weeks near target</span>
+        </div>
+
+        <div class="plan" style="margin-top:16px;">
+          <h4>Applied change</h4>
+          <ul>
+            <li><strong>Data Structures PSet</strong> Tue 5–9p → moved 4h into Week 6</li>
+            <li><strong>Micro Economics Project</strong> Wed 7–10p → moved 3h into Week 6</li>
+            <li><strong>World Literature Essay</strong> Fri 3–5p → moved 2h into Week 6</li>
+            <li><strong>Total moved:</strong> 10h (Week 7 → Week 6)</li>    
+
+          </ul>
+        </div>
+
+        <div class="row" style="margin-top:16px;">
+          <a class="btn" href="export.html">
+            <span class="material-symbols-rounded">ios_share</span>Export plan
+          </a>
+          <a class="btn secondary" href="timeline.html">
+            <span class="material-symbols-rounded">undo</span>Undo changes
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <span class="small">Step 3 of 4 · Updated timeline</span>
+      <span class="small">Next: Export</span>
+    </footer>
+  </main>
+
+ <script>
+  function loadTarget() {
+    const saved = localStorage.getItem("fp_target");
+    return saved ? parseFloat(saved) : 30;
+  }
+
+  // Original fixed loads
+  function getFixedWeeklyLoads() {
+    return [
+      36, // W1
+      38, // W2
+      40, // W3
+      39, // W4
+      37, // W5
+      30, // W6
+      50, // W7
+      38, // W8
+      38, // W9
+      39, // W10
+      40, // W11
+      38  // W12
+    ];
+  }
+
+  function renderUpdatedTimeline(weeks, target) {
+    const yAxis = document.getElementById("yaxis");
+    const container = document.getElementById("weeks");
+    yAxis.innerHTML = "";
+    container.innerHTML = "";
+
+    // Fixed Y-axis
+    const ticks = [70, 60, 50, 40, 30];
+    ticks.forEach(v => {
+      const span = document.createElement("span");
+      span.textContent = `${v}h`;
+      yAxis.appendChild(span);
+    });
+
+    const minVal = 20;
+    const maxVal = 70;
+    const range = maxVal - minVal;
+    const chartHeight = 200;
+
+    weeks.forEach((hours, idx) => {
+      const weekNum = idx + 1;
+      const weekDiv = document.createElement("div");
+      weekDiv.className = "week";
+
+      const clamped = Math.min(Math.max(hours, minVal), maxVal);
+      const normalized = (clamped - minVal) / (range || 1);
+      const pxHeight = Math.max(12, normalized * chartHeight);
+      const rounded = Math.round(hours);
+
+      let inner = "";
+      inner += `<a href="#">`;
+      inner += `<div class="bar" style="height:${pxHeight}px"></div>`;
+      inner += `<div class="label">W${weekNum}<span class="label-hours">${rounded}h</span></div>`;
+      inner += `</a>`;
+
+      weekDiv.innerHTML = inner;
+      container.appendChild(weekDiv);
+    });
+
+    // Update text labels
+    document.getElementById("targetLabel").textContent = target;
+
+    // badge
+    const week7Hours = weeks[6];
+    document.getElementById("badgeText").textContent =
+      `Week 7 now ${week7Hours}h of ${target}h target`;
+
+    document.getElementById("summaryHint").textContent =
+      "Weeks are now clustered near your selected target";
+  }
+
+  (function initUpdatedTimeline() {
+    const target = loadTarget();
+
+    // 1. Pull rebalanced weeks if available
+    const rebalanced = localStorage.getItem("fp_weeks_rebalanced");
+    let weeks = getFixedWeeklyLoads();
+
+    if (rebalanced) {
+      weeks = JSON.parse(rebalanced);
+    }
+
+    renderUpdatedTimeline(weeks, target);
+  })();
+</script>
+
+</body>
+</html>

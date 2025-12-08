@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FlowPlanner · Export Plan</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+<main class="phone">
+
+  <!-- HEADER -->
+  <header class="header">
+    <span class="material-symbols-rounded" onclick="history.back()" style="cursor:pointer;">arrow_back</span>
+    <div>
+      <div class="app">FlowPlanner</div>
+      <div class="sub">Export plan</div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <section class="main">
+  <div class="card">
+
+    <!-- Badge -->
+    <div class="badge" style="
+      background:rgba(0,200,120,.16);
+      border-color:rgba(0,200,120,.35);
+      color:#8ff2c4;
+      margin-bottom:12px;
+    ">
+      <span class="material-symbols-rounded">check_circle</span>
+      Plan ready to export
+    </div>
+
+    <!-- Title -->
+    <h2 style="margin:0 0 6px 0;">Export your calendar plan</h2>
+    <p class="sub" style="margin-bottom:16px;">
+      FlowPlanner will export your applied Week 7 rebalancing into a calendar (.ics) file.
+    </p>
+
+    <!-- Included events -->
+    <div style="margin-bottom:20px;">
+      <h4 style="margin-bottom:6px;">Included events</h4>
+      <ul style="padding-left:18px; line-height:1.5;">
+        <li>Data Structures PSet — Tue 5–9pm <span style="color:#9ab;">(4h moved to Week 6)</span></li>
+        <li>Microeconomics Project — Wed 7–10pm <span style="color:#9ab;">(3h moved to Week 6)</span></li>
+        <li>World Literature Draft — Fri 3–5pm <span style="color:#9ab;">(2h moved to Week 6)</span></li>
+      </ul>
+    </div>
+
+    <!-- Download button -->
+    <button id="exportBtn" class="btn" style="width:100%; display:flex; justify-content:center;">
+      <span class="material-symbols-rounded">download</span>
+      Export .ics file
+    </button>
+
+  </div>
+</section>
+
+
+  <footer class="footer">
+    <span class="small">Step 4 of 4 · Export</span>
+  </footer>
+
+</main>
+
+<script>
+/*
+  SIMPLE ICS EXPORTER
+  --------------------
+  Uses static events matching your Week 7 “Suggested Starts”
+  Times are placeholders but formatted correctly for .ics
+
+  You can adjust the date (YYYYMMDD) to anything you want.
+  Example below uses Dec 2025 as a placeholder.
+*/
+
+// --- utility: download a text blob ---
+function download(filename, text) {
+  const blob = new Blob([text], { type: "text/calendar" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+// --- create calendar file content ---
+function buildICS() {
+
+  // Hardcode 3 events (Assignment requirement)
+  // You can replace EV1_DATE with real detected dates if you want.
+
+  const EV1_DATE = "20251202"; // Tue
+  const EV2_DATE = "20251203"; // Wed
+  const EV3_DATE = "20251205"; // Fri
+
+  return (
+"BEGIN:VCALENDAR\n" +
+"VERSION:2.0\n" +
+"PRODID:-//FlowPlanner//Export//EN\n" +
+
+"BEGIN:VEVENT\n" +
+`DTSTART:${EV1_DATE}T170000\n` +
+`DTEND:${EV1_DATE}T210000\n` +
+"SUMMARY:Start Data Structures PSet\n" +
+"DESCRIPTION:Moves 4h of work into Week 6.\n" +
+"END:VEVENT\n" +
+
+"BEGIN:VEVENT\n" +
+`DTSTART:${EV2_DATE}T190000\n` +
+`DTEND:${EV2_DATE}T220000\n` +
+"SUMMARY:Continue Microeconomics Project\n" +
+"DESCRIPTION:Spreads coding work into Week 6.\n" +
+"END:VEVENT\n" +
+
+"BEGIN:VEVENT\n" +
+`DTSTART:${EV3_DATE}T150000\n` +
+`DTEND:${EV3_DATE}T170000\n` +
+"SUMMARY:Draft World Literature Intro + Outline\n" +
+"DESCRIPTION:Moves 2h into Week 6.\n" +
+"END:VEVENT\n" +
+
+"END:VCALENDAR"
+  );
+}
+
+// --- bind button ---
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const ics = buildICS();
+  download("flowplanner_plan.ics", ics);
+});
+</script>
+
+</body>
+</html>
