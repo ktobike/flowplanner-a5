@@ -124,7 +124,11 @@
         <div class="plan" style="margin-top:16px;">
           <h4>Applied change</h4>
           <ul>
-            <li><strong>STAT PSet</strong> starts Tue 7-9p, 2 hours moved into Week 6.</li>
+            <li><strong>Data Structures PSet</strong> Tue 5–9p → moved 4h into Week 6</li>
+            <li><strong>Micro Economics Project</strong> Wed 7–10p → moved 3h into Week 6</li>
+            <li><strong>World Literature Essay</strong> Fri 3–5p → moved 2h into Week 6</li>
+            <li><strong>Total moved:</strong> 10h (Week 7 → Week 6)</li>    
+
           </ul>
         </div>
 
@@ -146,79 +150,95 @@
     </footer>
   </main>
 
-  <script>
-    function loadTarget() {
-      const saved = localStorage.getItem("fp_target");
-      return saved ? parseFloat(saved) : 30;
+ <script>
+  function loadTarget() {
+    const saved = localStorage.getItem("fp_target");
+    return saved ? parseFloat(saved) : 30;
+  }
+
+  // Original fixed loads
+  function getFixedWeeklyLoads() {
+    return [
+      36, // W1
+      38, // W2
+      40, // W3
+      39, // W4
+      37, // W5
+      30, // W6
+      50, // W7
+      38, // W8
+      38, // W9
+      39, // W10
+      40, // W11
+      38  // W12
+    ];
+  }
+
+  function renderUpdatedTimeline(weeks, target) {
+    const yAxis = document.getElementById("yaxis");
+    const container = document.getElementById("weeks");
+    yAxis.innerHTML = "";
+    container.innerHTML = "";
+
+    // Fixed Y-axis
+    const ticks = [70, 60, 50, 40, 30];
+    ticks.forEach(v => {
+      const span = document.createElement("span");
+      span.textContent = `${v}h`;
+      yAxis.appendChild(span);
+    });
+
+    const minVal = 20;
+    const maxVal = 70;
+    const range = maxVal - minVal;
+    const chartHeight = 200;
+
+    weeks.forEach((hours, idx) => {
+      const weekNum = idx + 1;
+      const weekDiv = document.createElement("div");
+      weekDiv.className = "week";
+
+      const clamped = Math.min(Math.max(hours, minVal), maxVal);
+      const normalized = (clamped - minVal) / (range || 1);
+      const pxHeight = Math.max(12, normalized * chartHeight);
+      const rounded = Math.round(hours);
+
+      let inner = "";
+      inner += `<a href="#">`;
+      inner += `<div class="bar" style="height:${pxHeight}px"></div>`;
+      inner += `<div class="label">W${weekNum}<span class="label-hours">${rounded}h</span></div>`;
+      inner += `</a>`;
+
+      weekDiv.innerHTML = inner;
+      container.appendChild(weekDiv);
+    });
+
+    // Update text labels
+    document.getElementById("targetLabel").textContent = target;
+
+    // badge
+    const week7Hours = weeks[6];
+    document.getElementById("badgeText").textContent =
+      `Week 7 now ${week7Hours}h of ${target}h target`;
+
+    document.getElementById("summaryHint").textContent =
+      "Weeks are now clustered near your selected target";
+  }
+
+  (function initUpdatedTimeline() {
+    const target = loadTarget();
+
+    // 1. Pull rebalanced weeks if available
+    const rebalanced = localStorage.getItem("fp_weeks_rebalanced");
+    let weeks = getFixedWeeklyLoads();
+
+    if (rebalanced) {
+      weeks = JSON.parse(rebalanced);
     }
 
-    // Balanced version of the weeks after applying the Week 7 fix
-    function generateBalancedLoads(target) {
-      const factors = [
-        0.95, 1.0, 1.02, 0.97, 0.93, 0.97,
-        1.0,   // Week 7 pulled back to target
-        0.98, 0.95, 0.99, 0.97, 0.96
-      ];
-      return factors.map(f => parseFloat((target * f).toFixed(1)));
-    }
+    renderUpdatedTimeline(weeks, target);
+  })();
+</script>
 
-    function renderUpdatedTimeline(weeks, target) {
-      const yAxis    = document.getElementById("yaxis");
-      const container = document.getElementById("weeks");
-      yAxis.innerHTML = "";
-      container.innerHTML = "";
-
-      // Fixed axis: 30h to 70h, labels top to bottom
-      const ticks = [70, 60, 50, 40, 30];
-      ticks.forEach(v => {
-        const span = document.createElement("span");
-        span.textContent = `${v}h`;
-        yAxis.appendChild(span);
-      });
-
-      const minVal = 20;
-      const maxVal = 70;
-      const range  = maxVal - minVal;
-      const chartHeight = 200;
-
-      let maxWeekHours = -Infinity;
-      weeks.forEach(h => { if (h > maxWeekHours) maxWeekHours = h; });
-
-      weeks.forEach((hours, idx) => {
-        const weekNum = idx + 1;
-        const weekDiv = document.createElement("div");
-        weekDiv.className = "week"; // no overload state here
-
-        const clamped    = Math.min(Math.max(hours, minVal), maxVal);
-        const normalized = (clamped - minVal) / (range || 1);
-        const pxHeight   = Math.max(12, normalized * chartHeight);
-        const rounded    = Math.round(hours);
-
-        let inner = "";
-        inner += `<a href="#">`;
-        inner += `<div class="bar" style="height:${pxHeight}px"></div>`;
-        inner += `<div class="label">W${weekNum}<span class="label-hours">${rounded}h</span></div>`;
-        inner += `</a>`;
-
-        weekDiv.innerHTML = inner;
-        container.appendChild(weekDiv);
-      });
-
-      document.getElementById("targetLabel").textContent = target.toFixed(0);
-
-      const badgeText   = document.getElementById("badgeText");
-      const summaryHint = document.getElementById("summaryHint");
-      const week7Hours  = weeks[6];
-
-      badgeText.textContent   = `Week 7 ${Math.round(week7Hours)}h of ${target.toFixed(0)}h target`;
-      summaryHint.textContent = "Weeks are now clustered around your target load";
-    }
-
-    (function initUpdatedTimeline() {
-      const target = loadTarget();
-      const weeks  = generateBalancedLoads(target);
-      renderUpdatedTimeline(weeks, target);
-    })();
-  </script>
 </body>
 </html>

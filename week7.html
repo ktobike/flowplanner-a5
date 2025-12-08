@@ -155,16 +155,16 @@
         <div class="week-meta">
           <div class="pill">
             <span class="material-symbols-rounded" style="font-size:16px;">calendar_view_week</span>
-            Week 7 total: <strong>45h</strong>
+            Week 7 total: <strong id="week7Total">50h</strong>
           </div>
-          <div class="pill">
-            <span class="material-symbols-rounded" style="font-size:16px;">flag</span>
-            Target: <strong>30h / week</strong>
-          </div>
-          <div class="pill pill-danger">
-            <span class="material-symbols-rounded" style="font-size:16px;">warning</span>
-            <strong>+15h over target</strong>
-          </div>
+        <div class="pill">
+          <span class="material-symbols-rounded" style="font-size:16px;">flag</span>
+          Target: <strong id="targetWeekVal">--h / week</strong>
+        </div>
+          <div class="pill pill-danger" id="overagePill">
+          <span class="material-symbols-rounded" style="font-size:16px;">warning</span>
+          <strong id="overageText">+--h over target</strong>
+        </div>
         </div>
 
         <!-- Due this week -->
@@ -204,7 +204,7 @@
                 <span>
                   <span class="day-chip">
                     <span class="material-symbols-rounded" style="font-size:14px;">event</span>
-                    Tue 7–9p
+                    Tue 5–9p
                   </span>
                 </span>
                 <span><strong>Start Data Structures PSet</strong></span>
@@ -225,7 +225,7 @@
                 </span>
                 <span><strong>Continue Micro Economics project</strong></span>
                 <span class="course-tag">
-                  Spreads coding work over two evenings instead of one crunch session.
+                  Spreads coding work into week 6 instead of one crunch session.
                 </span>
               </div>
               <span class="hours-tag hot">-3h from W7</span>
@@ -250,9 +250,8 @@
         </div>
 
         <div class="summary-box">
-          If you accept all suggestions, Week 7 drops from <strong>45h</strong> to about
-          <strong>33h</strong>, which is much closer to your <strong>30h</strong> target.
-          FlowPlanner will update the 12-week timeline and mark the new plan as applied.
+          If you accept all suggestions, Week 7 drops from <strong>50h</strong> to about
+<strong>40h</strong>, which meets your <strong id="summaryTarget">--h</strong> target.
         </div>
 
         <!-- Actions -->
@@ -262,10 +261,11 @@
             Apply plan &amp; rebalance
           </button>
 
-          <a href="timeline.html" class="btn secondary btn-wide">
-            <span class="material-symbols-rounded">close</span>
-            Cancel, keep current plan
-          </a>
+          <button onclick="location.href='timeline.html'" class="btn secondary btn-wide">
+          <span class="material-symbols-rounded">close</span>
+          Cancel, keep current plan
+        </button>
+
         </div>
 
       </div>
@@ -279,10 +279,80 @@
   </main>
 
   <script>
+  // Retrieve saved target from workload.html
+  const savedTarget = localStorage.getItem("fp_target");
+
+  if (savedTarget) {
+    // Update the pill
+    const pillTarget = document.getElementById("targetWeekVal");
+    if (pillTarget) pillTarget.textContent = `${savedTarget}h / week`;
+
+    // Update summary target
+    const summaryTarget = document.getElementById("summaryTarget");
+    if (summaryTarget) summaryTarget.textContent = `${savedTarget}h`;
+  } else {
+    // fallback default if no value yet
+    document.getElementById("targetWeekVal").textContent = "40h / week";
+    document.getElementById("summaryTarget").textContent = "40h";
+  }
+</script>
+
+<script>
+
+  // Read the hardcoded Week 7 total (50h)
+  const totalEl = document.getElementById("week7Total");
+  const week7Total = parseInt(totalEl.textContent.replace("h", ""), 10);
+
+  // Update the pill & summary target (from previous step)
+  if (savedTarget) {
+    document.getElementById("targetWeekVal").textContent = `${savedTarget}h / week`;
+    document.getElementById("summaryTarget").textContent = `${savedTarget}h`;
+  }
+
+  // Compute overage: total minus target
+  const over = week7Total - savedTarget;
+
+  // If there's any positive overage, show it
+  const overText = document.getElementById("overageText");
+  if (over > 0) {
+    overText.textContent = `+${over}h over target`;
+  } else {
+    // If no overload, indicate balanced week
+    overText.textContent = `On target`;
+    document.getElementById("overagePill").classList.remove("pill-danger");
+  }
+
+</script>
+
+
+
+  <script>
     // When the user applies the plan, set a flag then go to the updated timeline.
     document.getElementById("applyPlanBtn").addEventListener("click", function () {
       try {
         localStorage.setItem("fp_plan_applied", "week7");
+
+        // original weekly loads
+        const newWeeks = [
+          36, // W1
+          38, // W2
+          40, // W3
+          39, // W4
+          37, // W5
+          40, // W6 (was 30 + 10 transferred)
+          40, // W7 (was 50 - 10 transferred)
+          38, // W8
+          38, // W9
+          39, // W10
+          40, // W11
+          38  // W12
+        ];
+
+        // save rebalanced version
+        localStorage.setItem("fp_weeks_rebalanced", JSON.stringify(newWeeks));
+
+        window.location.href = "updatedtimeline.html";
+
       } catch (e) {
         // ignore storage errors, this is just for the prototype
       }
